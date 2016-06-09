@@ -1,2 +1,2 @@
 # selectize-directory-angular
-this is a directory for selectize
+this is script show how work with selectize in angular.
