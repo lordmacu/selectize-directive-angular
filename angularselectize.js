@@ -1,5 +1,4 @@
-
-          app.directive('selectTwoAjax', ['$parse','$timeout', function ($timeout,$parse,$scope,$rootScope) {
+     app.directive('selectTwoAjax', ['$parse','$timeout', function ($timeout,$parse,$scope,$rootScope) {
             return {
                restrict: 'A',
                     scope: {
@@ -17,6 +16,24 @@
                     searchField: attrs.key,
                     placeholder:attrs.placeholder,
                     create: attrs.create,
+                    onOptionAdd:function(a,item,talvez){
+
+                      if(attrs.create){
+                        if(item.name==item.id){
+                          var name=item.name;
+                          var selectize = selectizes[0].selectize;
+                          $.post( scope.$root.url+"/tags", { name: ""+name},function(resp){
+                                selectize.removeOption(name);
+                                selectize.refreshOptions();
+                                selectize.addOption({name:resp.data.name,id:resp.data.id});
+                                selectize.addItems(resp.data.id);
+                                selectize.refreshOptions();
+
+                          } );
+                        }
+ 
+                      }
+                    },
                     render: {
                         option: function(item, escape) {
                           var name=eval("item."+attrs.key);
@@ -28,10 +45,9 @@
                         }
                     },
                     load: function(query, callback) {
-                      this.settings.load = null;
                         if (!query.length) return callback();
                         $.ajax({
-                            url: scope.$root.url+'/'+attrs.modelname+'?where={"'+attrs.key+'":{"contains":"'+encodeURIComponent(query)+'"}}',
+                            url: scope.$root.url+'/'+attrs.modelname+'?where={"'+attrs.key+'":{"contains":"'+encodeURIComponent(query)+'"}}&rand='+Math.random(),
                             type: 'GET',
                             error: function() {
                                 callback();
@@ -42,6 +58,8 @@
                         });
                     }
                 });
+
+                console.log(attrs.model);
                 attrs.$observe("model", function (newValue) {
                     if(!!newValue){
                       setTimeout(function(){
